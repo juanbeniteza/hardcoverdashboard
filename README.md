@@ -3,7 +3,8 @@
 A read-only [Hardcover.app](https://hardcover.app) reading dashboard plugin for KOReader, designed for color and grayscale e-ink screens with a single-page, zero-scroll layout.
 
 <p align="center">
-  <img src="docs/screenshot.png" alt="Hardcover Dashboard running on a Kobo Libra Colour in KOReader" width="460" />
+  <img src="docs/dashboard.png" alt="Hardcover Dashboard running on a Kobo Libra Colour in KOReader" width="420" />
+  <img src="docs/day-detail.png" alt="Day detail popup showing multiple books read on the same day" width="420" />
 </p>
 
 ## Features

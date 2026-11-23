@@ -178,10 +178,27 @@ function Dialog:render()
         margin = 0,
         content,
     }
+    local screen_w = Device.screen:getWidth()
+    local screen_h = Device.screen:getHeight()
+    local diagonal = math.sqrt(screen_w ^ 2 + screen_h ^ 2)
     self.dimen = Geom:new{ w = screen_w, h = screen_h }
     self[1] = CenterContainer:new{
         dimen = self.dimen,
         self.box,
+    }
+    self.ges_events.TapDiagonal = {
+        GestureRange:new{
+            ges = "two_finger_tap",
+            scale = { diagonal - W.scale(200), diagonal },
+            rate = 1.0,
+        },
+    }
+    self.ges_events.SwipeDiagonal = {
+        GestureRange:new{
+            ges = "swipe",
+            scale = { diagonal - W.scale(200), diagonal },
+            rate = 1.0,
+        },
     }
     self.ges_events.TapClose = {
         GestureRange:new{
@@ -191,9 +208,34 @@ function Dialog:render()
     }
 end
 
+function Dialog:take_screenshot()
+    if self.on_screenshot then
+        self.on_screenshot()
+        return true
+    end
+    return false
+end
+
+Dialog.onTapDiagonal = Dialog.take_screenshot
+Dialog.onSwipeDiagonal = Dialog.take_screenshot
+
 function Dialog:onTapClose(_, ges)
     if self.box and self.box.dimen and not ges.pos:intersectWith(self.box.dimen) then
+        -- Let corner-tap gestures (e.g., custom screenshot gesture) fire without closing the dialog
+        if W.forward_gesture(self.ui, ges) then
+            return true
+        end
         return self:onClose()
+    end
+    return false
+end
+
+function Dialog:handleEvent(ev)
+    if InputContainer.handleEvent(self, ev) then
+        return true
+    end
+    if ev and ev.handler == "onGesture" and ev.args and ev.args[1] then
+        return W.forward_gesture(self.ui, ev.args[1])
     end
     return false
 end

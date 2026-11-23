@@ -378,4 +378,33 @@ function M.cover(url, w, h, title, color)
     }
 end
 
+-- Forward unhandled gestures (custom KOReader Gesture Manager zones and Screenshoter)
+-- to the parent FileManager / ReaderUI without letting plain taps trigger page turns.
+function M.forward_gesture(ui, ev)
+    if not ui or type(ev) ~= "table" then return false end
+    local ges = ev.ges
+    local zones = ui._ordered_touch_zones
+    if type(zones) == "table" then
+        for _, tzone in ipairs(zones) do
+            local id = (tzone.def and tzone.def.id) or tzone.id or ""
+            local allow = (ges ~= "tap") or (type(id) == "string" and (id:match("^tap_") or id:match("corner")))
+            if allow and tzone.gs_range and tzone.gs_range:match(ev) then
+                if tzone.handler and tzone.handler(ev) then
+                    return true
+                end
+            end
+        end
+    end
+    -- Also check active_widgets (e.g. KOReader's built-in Screenshoter)
+    if type(ui.active_widgets) == "table" then
+        local Event = require("ui/event")
+        for _, aw in ipairs(ui.active_widgets) do
+            if aw and aw.handleEvent and aw:handleEvent(Event:new("Gesture", ev)) then
+                return true
+            end
+        end
+    end
+    return false
+end
+
 return M

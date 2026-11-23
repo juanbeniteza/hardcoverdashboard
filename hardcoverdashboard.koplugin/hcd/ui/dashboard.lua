@@ -462,7 +462,17 @@ function View:onSwipe(_, ges)
         self:shift_month(-1)
         return true
     end
-    -- Let diagonal / vertical gestures propagate to KOReader (e.g., Screenshoter)
+    -- Let diagonal / vertical gestures propagate to KOReader (e.g., Screenshoter / Gestures)
+    return false
+end
+
+function View:handleEvent(ev)
+    if InputContainer.handleEvent(self, ev) then
+        return true
+    end
+    if ev and ev.handler == "onGesture" and ev.args and ev.args[1] then
+        return W.forward_gesture(self.plugin and self.plugin.ui, ev.args[1])
+    end
     return false
 end
 

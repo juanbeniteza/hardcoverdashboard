@@ -43,7 +43,7 @@ function DayCell:onTap()
     return true
 end
 
-local function build_week_row(week_days, month_prefix, today, month_data, lanes_map, cell_w, cell_h, gap, show_covers)
+local function build_week_row(view, week_days, month_prefix, today, month_data, lanes_map, cell_w, cell_h, gap, show_covers)
     local t = W.theme()
     local row_w = cell_w * 7 + gap * 6
     local cells_row = HorizontalGroup:new{ align = "top" }
@@ -105,6 +105,8 @@ local function build_week_row(week_days, month_prefix, today, month_data, lanes_
                         day = day,
                         entry = entry,
                         show_covers = show_covers,
+                        ui = view.plugin and view.plugin.ui,
+                        on_screenshot = function() view:take_screenshot() end,
                     })
                 end,
             }
@@ -377,6 +379,7 @@ function M.build(view, width, height)
             week_days[col] = grid[(week - 1) * 7 + col]
         end
         body[#body + 1] = build_week_row(
+            view,
             week_days,
             month_prefix,
             today,
